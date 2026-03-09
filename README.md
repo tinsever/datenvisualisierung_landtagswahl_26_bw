@@ -1,4 +1,4 @@
-# Visualisierung der Landtagswahlergebnisse in Baden-Württemberg 2025
+# Visualisierung der Landtagswahlergebnisse in Baden-Württemberg 2026
 
 Es gibt keine Gewähr für Richtigkeit.
 
