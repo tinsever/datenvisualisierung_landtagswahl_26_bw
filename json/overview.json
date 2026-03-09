@@ -1,0 +1,24 @@
+{
+  "eligible": 7773341,
+  "voters": 5406852,
+  "turnoutPct": 69.5563,
+  "reported": 11570,
+  "totalDistricts": 11570,
+  "reportedPct": 100.0,
+  "validFirst": 5358876,
+  "validSecond": 5374834,
+  "invalidFirst": 47976,
+  "invalidSecond": 32018,
+  "invalidFirstPct": 0.8873,
+  "invalidSecondPct": 0.5922,
+  "briefSharePct": 35.8156,
+  "urneSharePct": 64.1844,
+  "firstWinner": {
+    "name": "CDU",
+    "share": 34.2897
+  },
+  "secondWinner": {
+    "name": "GRUENE",
+    "share": 30.1992
+  }
+}

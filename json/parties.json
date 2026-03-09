@@ -1,0 +1,200 @@
+[
+  {
+    "name": "GRUENE",
+    "color": "#2f8f4e",
+    "firstVotes": 1368072,
+    "secondVotes": 1623156,
+    "firstShare": 25.5291,
+    "secondShare": 30.1992,
+    "deltaShare": 4.6701
+  },
+  {
+    "name": "CDU",
+    "color": "#101820",
+    "firstVotes": 1837543,
+    "secondVotes": 1595844,
+    "firstShare": 34.2897,
+    "secondShare": 29.691,
+    "deltaShare": -4.5987
+  },
+  {
+    "name": "AfD",
+    "color": "#0084c7",
+    "firstVotes": 1009819,
+    "secondVotes": 1010449,
+    "firstShare": 18.8439,
+    "secondShare": 18.7996,
+    "deltaShare": -0.0443
+  },
+  {
+    "name": "SPD",
+    "color": "#c62828",
+    "firstVotes": 450169,
+    "secondVotes": 298278,
+    "firstShare": 8.4004,
+    "secondShare": 5.5495,
+    "deltaShare": -2.8509
+  },
+  {
+    "name": "Die Linke",
+    "color": "#b10062",
+    "firstVotes": 265186,
+    "secondVotes": 237062,
+    "firstShare": 4.9485,
+    "secondShare": 4.4106,
+    "deltaShare": -0.5379
+  },
+  {
+    "name": "FDP",
+    "color": "#d9ad00",
+    "firstVotes": 256168,
+    "secondVotes": 235599,
+    "firstShare": 4.7803,
+    "secondShare": 4.3834,
+    "deltaShare": -0.3969
+  },
+  {
+    "name": "FREIE WAEHLER",
+    "color": "#f28c28",
+    "firstVotes": 54549,
+    "secondVotes": 102687,
+    "firstShare": 1.0179,
+    "secondShare": 1.9105,
+    "deltaShare": 0.8926
+  },
+  {
+    "name": "BSW",
+    "color": "#7b1738",
+    "firstVotes": 31288,
+    "secondVotes": 76314,
+    "firstShare": 0.5839,
+    "secondShare": 1.4198,
+    "deltaShare": 0.8359
+  },
+  {
+    "name": "Tierschutzpartei",
+    "color": "#2b98d8",
+    "firstVotes": 2131,
+    "secondVotes": 49802,
+    "firstShare": 0.0398,
+    "secondShare": 0.9266,
+    "deltaShare": 0.8868
+  },
+  {
+    "name": "Volt",
+    "color": "#6d3bd1",
+    "firstVotes": 52185,
+    "secondVotes": 45797,
+    "firstShare": 0.9738,
+    "secondShare": 0.8521,
+    "deltaShare": -0.1217
+  },
+  {
+    "name": "Die PARTEI",
+    "color": "#676767",
+    "firstVotes": 8528,
+    "secondVotes": 22784,
+    "firstShare": 0.1591,
+    "secondShare": 0.4239,
+    "deltaShare": 0.2648
+  },
+  {
+    "name": "dieBasis",
+    "color": "#8b5a2b",
+    "firstVotes": 3087,
+    "secondVotes": 15122,
+    "firstShare": 0.0576,
+    "secondShare": 0.2813,
+    "deltaShare": 0.2237
+  },
+  {
+    "name": "Buendnis C",
+    "color": "#567b2f",
+    "firstVotes": 4069,
+    "secondVotes": 12518,
+    "firstShare": 0.0759,
+    "secondShare": 0.2329,
+    "deltaShare": 0.157
+  },
+  {
+    "name": "Werteunion",
+    "color": "#285d8d",
+    "firstVotes": 4651,
+    "secondVotes": 11304,
+    "firstShare": 0.0868,
+    "secondShare": 0.2103,
+    "deltaShare": 0.1235
+  },
+  {
+    "name": "OEDP",
+    "color": "#f57c00",
+    "firstVotes": 5701,
+    "secondVotes": 9370,
+    "firstShare": 0.1064,
+    "secondShare": 0.1743,
+    "deltaShare": 0.0679
+  },
+  {
+    "name": "PDR",
+    "color": "#b47a34",
+    "firstVotes": 0,
+    "secondVotes": 9009,
+    "firstShare": 0.0,
+    "secondShare": 0.1676,
+    "deltaShare": 0.1676
+  },
+  {
+    "name": "Die Gerechtigkeitspartei",
+    "color": "#0c7a6a",
+    "firstVotes": 642,
+    "secondVotes": 7332,
+    "firstShare": 0.012,
+    "secondShare": 0.1364,
+    "deltaShare": 0.1244
+  },
+  {
+    "name": "PdF",
+    "color": "#92468b",
+    "firstVotes": 0,
+    "secondVotes": 3670,
+    "firstShare": 0.0,
+    "secondShare": 0.0683,
+    "deltaShare": 0.0683
+  },
+  {
+    "name": "Verjuengungsforschung",
+    "color": "#6f6f6f",
+    "firstVotes": 0,
+    "secondVotes": 3590,
+    "firstShare": 0.0,
+    "secondShare": 0.0668,
+    "deltaShare": 0.0668
+  },
+  {
+    "name": "KlimalisteBW",
+    "color": "#6fa73c",
+    "firstVotes": 0,
+    "secondVotes": 2790,
+    "firstShare": 0.0,
+    "secondShare": 0.0519,
+    "deltaShare": 0.0519
+  },
+  {
+    "name": "PDH",
+    "color": "#ff7b29",
+    "firstVotes": 0,
+    "secondVotes": 2357,
+    "firstShare": 0.0,
+    "secondShare": 0.0439,
+    "deltaShare": 0.0439
+  },
+  {
+    "name": "Andere Kreiswahlvorschlaege",
+    "color": "#8b6f47",
+    "firstVotes": 0,
+    "secondVotes": 0,
+    "firstShare": 0.0,
+    "secondShare": 0.0,
+    "deltaShare": 0.0
+  }
+]
