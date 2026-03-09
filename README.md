@@ -3,7 +3,7 @@
 Es gibt keine Gewähr für Richtigkeit.
 
 > [!NOTE]
-> Das Urheberrecht für die Daten liegt beim Statistischen Landesamt Baden-Württemberg (© Statistisches Landesamt Baden-Württemberg, Stuttgart 2026). Dies wird auch in den Dateien genannt. Die Grafiken sind CC BY-SA (Attribution-Share-Alike).
+> Datengrundlage: © Statistisches Landesamt Baden-Württemberg, Stuttgart, 2026. Eigene grafische Aufbereitung: Tin Sever, lizenziert unter CC BY-SA 4.0. Änderungen und Visualisierung durch Tin Sever.
 
 Da mir einiges „komisch“ vorkam und es dazu keine guten öffentlichen Statistiken gibt, habe ich einige Statistiken erstellt, die wichtige Dinge zeigen.
 
