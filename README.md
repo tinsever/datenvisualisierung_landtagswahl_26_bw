@@ -1,7 +1,6 @@
 # Visualisierung der Landtagswahlergebnisse in Baden-Württemberg 2025
 
-> [!CAUTION]
-> Die Statistik basiert auf der Ergebnispräsentation des Statistischen Landesamt Baden-Württemberg am Wahltag um 21:48. Zu dem Zeitpunkt wurden 11.541 von 11.570 Wahlergebnisse ausgezählt, ich werde schnellstmöglich das Endergebnis veröffentlichen. Es gibt keine Gewähr für Richtigkeit.
+Es gibt keine Gewähr für Richtigkeit.
 
 > [!NOTE]
 > Das Urheberrecht für die Daten liegt beim Statistischen Landesamt Baden-Württemberg (© Statistisches Landesamt Baden-Württemberg, Stuttgart 2026). Dies wird auch in den Dateien genannt. Die Grafiken sind CC BY-SA (Attribution-Share-Alike).
