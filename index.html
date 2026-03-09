@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <base href="./">
+  <title>Landtagswahl 2026 BW – Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a1628;
+      --panel: rgba(255,255,255,0.04);
+      --panel-h: rgba(255,255,255,0.06);
+      --text: #e8eaed;
+      --text2: rgba(255,255,255,0.55);
+      --text3: rgba(255,255,255,0.35);
+      --accent: #5a9fd4;
+      --accent-d: rgba(90,159,212,0.15);
+      --bdr: rgba(255,255,255,0.06);
+      --pos: #66bb6a;
+      --neg: #e57373;
+      --hurdle: rgba(255,255,255,0.4);
+      --track: rgba(255,255,255,0.06);
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --space: 10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 115%; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 52px;
+      min-height: 52px;
+      background: rgba(0,0,0,0.15);
+      border-bottom: 1px solid var(--bdr);
+    }
+    .hdr-left { display: flex; align-items: center; gap: var(--space); }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; }
+    .status { display: flex; align-items: center; gap: var(--space); font-size: 0.75rem; color: var(--text2); }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--pos);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      padding: var(--space) 28px;
+      min-height: 64px;
+      overflow-x: auto;
+    }
+    .stat-card {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+    .stat-value { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); }
+    .stat-sub { font-size: 0.7rem; color: var(--text3); font-variant-numeric: tabular-nums; font-weight: 400; }
+
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--bdr);
+      min-height: 44px;
+    }
+    .tab {
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: var(--space) 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      padding: var(--space) 28px;
+      animation: fadeUp 0.2s ease;
+    }
+    .panel.active { display: flex; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-toolbar {
+      display: flex;
+      gap: var(--space);
+      align-items: center;
+      margin-bottom: var(--space);
+      flex-wrap: wrap;
+    }
+    .toggle-grp { display: flex; gap: 0; }
+    .tgl {
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tgl:first-child { border-radius: 6px 0 0 6px; }
+    .tgl:last-child { border-radius: 0 6px 6px 0; }
+    .tgl:not(:first-child) { border-left: none; }
+    .tgl:hover { background: var(--panel-h); color: var(--text); }
+    .tgl.active { background: var(--accent-d); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+    .tgl.active + .tgl { border-left: 1px solid var(--accent); }
+    .toolbar-label { font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+
+    .bars-wrap {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      padding-right: var(--space);
+    }
+    .bars-container { position: relative; }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space);
+      padding: var(--space) 0;
+      cursor: default;
+    }
+    .bar-row:hover { background: rgba(255,255,255,0.02); }
+    .bar-name {
+      width: 120px;
+      min-width: 120px;
+      text-align: right;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-track {
+      flex: 1;
+      height: 26px;
+      background: var(--track);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0;
+      transition: width 0.5s ease;
+    }
+    .bar-pct {
+      width: 65px;
+      min-width: 65px;
+      text-align: right;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .bar-votes {
+      width: 90px;
+      min-width: 90px;
+      text-align: right;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--text3);
+      font-variant-numeric: tabular-nums;
+    }
+    .hurdle-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--hurdle);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .bar-separator {
+      height: 1px;
+      background: var(--bdr);
+      margin: var(--space) 0;
+      margin-left: 130px;
+    }
+
+    .wk-layout {
+      flex: 1;
+      display: flex;
+      gap: var(--space);
+      overflow: hidden;
+    }
+    .wk-sidebar {
+      width: 320px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space);
+    }
+    .wk-search {
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      border-radius: 2px;
+      padding: 8px 12px;
+      font-family: var(--font);
+      font-size: 0.78rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .wk-search:focus { border-color: var(--accent); }
+    .wk-search::placeholder { color: var(--text3); }
+    .wk-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .wk-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space);
+      padding: 8px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: background 0.12s;
+    }
+    .wk-item:hover { background: var(--panel-h); }
+    .wk-item.selected { background: var(--accent-d); }
+    .wk-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .wk-item-name { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wk-item-pct { font-variant-numeric: tabular-nums; color: var(--text2); font-weight: 600; }
+    .wk-item-winner {
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .wk-detail-pane {
+      flex: 1;
+      background: var(--panel);
+      border-radius: 4px;
+      padding: 12px 20px;
+      overflow-y: auto;
+    }
+    .wk-placeholder {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text3);
+      font-size: 0.85rem;
+    }
+    .wk-d-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space); }
+    .wk-d-name { font-size: 1.2rem; font-weight: 700; }
+    .wk-d-nr { font-size: 0.7rem; color: var(--text2); }
+    .wk-d-stats { display: flex; gap: 16px; margin-bottom: var(--space); flex-wrap: wrap; }
+    .wk-d-stat { text-align: center; }
+    .wk-d-stat-val { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .wk-d-stat-lbl { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); }
+    .wk-d-winners { display: flex; gap: var(--space); margin-bottom: var(--space); flex-wrap: wrap; }
+    .wk-d-winner {
+      padding: 6px 10px;
+      border-radius: 2px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wk-d-winner small { font-weight: 400; opacity: 0.7; font-size: 0.6rem; }
+    .wk-d-winner-primary { box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
+    .wk-d-parties { display: flex; flex-direction: column; gap: 4px; }
+    .wk-d-bar-header { display: flex; align-items: center; gap: 6px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; padding-bottom: 4px; border-bottom: 1px solid var(--bdr); }
+    .wk-d-bar-header .wk-d-bar-pct { color: var(--accent); font-weight: 700; }
+    .wk-d-bar-header .wk-d-bar-pct-first { color: var(--text3); font-weight: 500; }
+    .wk-d-bar-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+    .wk-d-bar-name { width: 100px; min-width: 100px; font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wk-d-bar-track { flex: 1; height: 18px; background: var(--track); border-radius: 3px; overflow: hidden; }
+    .wk-d-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .wk-d-bar-pct { width: 52px; min-width: 52px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+    .wk-d-bar-pct-first { width: 52px; min-width: 52px; text-align: right; font-size: 0.72rem; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--text3); }
+    .wk-count { font-size: 0.65rem; color: var(--text3); margin-top: 4px; text-align: center; }
+
+    .gem-layout { flex: 1; display: flex; gap: 12px; overflow: hidden; }
+    .gem-sidebar { width: 340px; min-width: 280px; display: flex; flex-direction: column; gap: 8px; }
+    .gem-filters { display: flex; gap: 6px; }
+    .gem-filters select {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-family: var(--font);
+      font-size: 0.7rem;
+      color: var(--text);
+      outline: none;
+    }
+    .gem-filters select:focus { border-color: var(--accent); }
+    .gem-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+
+    .vgl-content { flex: 1; overflow-y: auto; }
+    .vgl-header { display: flex; gap: var(--space); margin-bottom: var(--space); }
+    .vgl-card {
+      flex: 1;
+      padding: var(--space) 12px;
+      text-align: center;
+    }
+    .vgl-card-icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .vgl-card-val { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .vgl-card-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); }
+    .vgl-card-sub { font-size: 0.7rem; color: var(--text3); }
+    .vgl-bars { display: flex; flex-direction: column; gap: var(--space); }
+    .vgl-bar-group { display: flex; flex-direction: column; gap: 2px; }
+    .vgl-bar-row { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; }
+    .vgl-bar-label { width: 100px; min-width: 100px; text-align: right; font-weight: 500; }
+    .vgl-bar-type { width: 55px; min-width: 55px; font-size: 0.6rem; color: var(--text2); }
+    .vgl-bar-track { flex: 1; height: 14px; background: var(--track); border-radius: 2px; overflow: hidden; }
+    .vgl-bar-fill { height: 100%; border-radius: 3px; }
+    .vgl-bar-pct { width: 50px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .vgl-delta-row { display: flex; align-items: center; gap: var(--space); padding: var(--space) 0; font-size: 0.78rem; }
+    .vgl-delta-name { width: 110px; min-width: 110px; text-align: right; font-weight: 600; }
+    .vgl-delta-track { flex: 1; height: 20px; position: relative; }
+    .vgl-delta-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--bdr); }
+    .vgl-delta-bar {
+      position: absolute;
+      top: 2px;
+      height: 16px;
+      border-radius: 2px;
+      transition: width 0.5s ease, left 0.5s ease;
+    }
+    .vgl-delta-val { width: 70px; min-width: 70px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .vgl-delta-val.plus { color: var(--pos); }
+    .vgl-delta-val.minus { color: var(--neg); }
+
+    .analyse-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space);
+      overflow-y: auto;
+    }
+    @media (max-width: 1000px) { .analyse-grid { grid-template-columns: repeat(2, 1fr); } }
+    .a-card {
+      background: var(--panel);
+      border-radius: 4px;
+      padding: var(--space) 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .a-card-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text2);
+      font-weight: 600;
+      margin-bottom: var(--space);
+    }
+    .a-rank {
+      display: flex;
+      align-items: center;
+      gap: var(--space);
+      padding: 4px 0;
+      font-size: 0.72rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .a-rank:last-child { border-bottom: none; }
+    .a-rank-pos { width: 18px; font-weight: 700; color: var(--text3); text-align: center; font-size: 0.65rem; }
+    .a-rank-name { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .a-rank-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .a-stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.72rem; }
+    .a-stat-row:last-child { border-bottom: none; }
+    .a-stat-lbl { color: var(--text2); }
+    .a-stat-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 28px;
+      min-height: 28px;
+      font-size: 0.6rem;
+      color: var(--text3);
+      border-top: 1px solid var(--bdr);
+    }
+
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--bg);
+      border: 1px solid var(--bdr);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 0.72rem;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.12s;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+    #tooltip.show { opacity: 1; }
+
+    #laser {
+      position: fixed;
+      width: 14px;
+      height: 14px;
+      margin: -7px 0 0 -7px;
+      background: #e53935;
+      border-radius: 50%;
+      box-shadow: 0 0 20px 6px rgba(229, 57, 53, 0.7), 0 0 40px 12px rgba(229, 57, 53, 0.4);
+      pointer-events: none;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #laser.on { opacity: 1; }
+    .laser-btn {
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .laser-btn:hover { background: var(--panel-h); color: var(--text); }
+    .laser-btn.active { background: rgba(229, 57, 53, 0.2); color: #e53935; border-color: rgba(229, 57, 53, 0.4); }
+    .laser-btn svg { width: 14px; height: 14px; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    .loading-screen {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+      z-index: 10000;
+      transition: opacity 0.4s;
+    }
+    .loading-screen.hide { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--bdr);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      * { -webkit-tap-highlight-color: transparent; }
+      button, .tab, .tgl, .wk-item { touch-action: manipulation; }
+      html { font-size: 100%; }
+      html, body { height: auto; min-height: 100vh; overflow: auto; }
+      #app { height: auto; max-height: none; min-height: 100vh; }
+      main { overflow-y: auto; overflow-x: hidden; }
+      .panel { overflow-y: auto; }
+
+      header {
+        flex-wrap: wrap;
+        padding: 8px max(14px, env(safe-area-inset-left)) 8px max(14px, env(safe-area-inset-right));
+        min-height: auto;
+        gap: 8px;
+      }
+      .hdr-left { flex-wrap: wrap; }
+      header h1 { font-size: 0.85rem; line-height: 1.3; }
+      .status { font-size: 0.7rem; }
+      .laser-btn span { display: none; }
+      .laser-btn { padding: 6px; }
+      .laser-btn svg { width: 16px; height: 16px; }
+
+      .stats-row {
+        padding: 8px max(14px, env(safe-area-inset-left)) 8px max(14px, env(safe-area-inset-right));
+        gap: 12px;
+        min-height: auto;
+        flex-wrap: wrap;
+      }
+      .stat-card { min-width: calc(50% - 6px); }
+      .stat-value { font-size: 1.1rem; }
+      .stat-card:nth-child(5) { min-width: 100%; }
+
+      .tab-bar {
+        padding: 0 max(14px, env(safe-area-inset-left)) 0 max(14px, env(safe-area-inset-right));
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .tab-bar::-webkit-scrollbar { display: none; }
+      .tab { padding: 10px 12px; font-size: 0.72rem; }
+
+      .panel { padding: 10px max(14px, env(safe-area-inset-left)) 10px max(14px, env(safe-area-inset-right)); }
+      .panel-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .toolbar-label { margin-right: 0; margin-bottom: 2px; }
+
+      .bar-row {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 8px 0;
+      }
+      .bar-name {
+        width: 100%;
+        min-width: 100%;
+        text-align: left;
+        font-size: 0.75rem;
+      }
+      .bar-track { flex: 1; min-width: 0; height: 22px; }
+      .bar-pct {
+        width: 55px;
+        min-width: 55px;
+        font-size: 0.85rem;
+      }
+      .bar-votes {
+        width: auto;
+        min-width: 0;
+        font-size: 0.68rem;
+      }
+      .bar-separator { margin-left: 0; }
+
+      .wk-layout {
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .wk-sidebar {
+        width: 100%;
+        min-width: 0;
+        max-height: 40vh;
+      }
+      .wk-detail-pane {
+        min-height: 200px;
+      }
+      .wk-d-stats { gap: 12px; }
+      .wk-d-stat-val { font-size: 1.2rem; }
+      .wk-d-bar-name { width: 80px; min-width: 80px; font-size: 0.72rem; }
+      .wk-d-bar-pct, .wk-d-bar-pct-first { width: 45px; min-width: 45px; font-size: 0.7rem; }
+
+      .gem-layout { flex-direction: column; overflow-y: auto; }
+      .gem-sidebar {
+        width: 100%;
+        min-width: 0;
+        max-height: 35vh;
+      }
+      .gem-filters { flex-direction: column; }
+      #gem-detail { min-height: 200px; }
+
+      .vgl-header { flex-direction: column; gap: 8px; }
+      .vgl-card { padding: 12px 8px; }
+      .vgl-bar-label { width: 80px; min-width: 80px; font-size: 0.68rem; }
+      .vgl-delta-name { width: 90px; min-width: 90px; font-size: 0.72rem; }
+      .vgl-delta-val { width: 60px; min-width: 60px; font-size: 0.75rem; }
+
+      .analyse-grid { grid-template-columns: 1fr; gap: 8px; }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 8px max(14px, env(safe-area-inset-left)) 8px max(14px, env(safe-area-inset-right));
+        min-height: auto;
+        font-size: 0.58rem;
+      }
+
+      #tooltip { max-width: 260px; font-size: 0.68rem; padding: 8px 10px; }
+    }
+
+    @media (max-width: 480px) {
+      .stat-card { min-width: 100%; }
+      .bar-pct { width: 50px; min-width: 50px; }
+      .wk-d-bar-name { width: 70px; min-width: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loader"><div class="spinner"></div></div>
+  <div id="app" style="opacity:0">
+    <header>
+      <div class="hdr-left">
+        <div class="badge">Ergebnis</div>
+        <h1>Landtagswahl Baden-Württemberg 2026</h1>
+      </div>
+      <div class="status">
+        <button type="button" class="laser-btn" id="laser-btn" title="Laserpointer ein/aus">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+          <span>Laserpointer</span>
+        </button>
+        <span id="hdr-status"></span>
+      </div>
+    </header>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <nav class="tab-bar" id="tab-bar">
+      <button class="tab active" data-panel="ergebnis">Ergebnis</button>
+      <button class="tab" data-panel="wahlkreise">Wahlkreise</button>
+      <button class="tab" data-panel="gemeinden">Gemeinden</button>
+      <button class="tab" data-panel="vergleich">Vergleich</button>
+      <button class="tab" data-panel="analyse">Analyse</button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="panel-ergebnis">
+        <div class="panel-toolbar">
+          <span class="toolbar-label">Stimme</span>
+          <div class="toggle-grp" id="vote-toggle">
+            <button class="tgl active" data-v="second">Zweitstimmen</button>
+            <button class="tgl" data-v="first">Erststimmen</button>
+          </div>
+          <span class="toolbar-label" style="margin-left:12px">Filter</span>
+          <div class="toggle-grp" id="party-filter">
+            <button class="tgl active" data-min="0">Alle</button>
+            <button class="tgl" data-min="1">≥ 1 %</button>
+            <button class="tgl" data-min="3">≥ 3 %</button>
+          </div>
+        </div>
+        <div class="bars-wrap" id="ergebnis-bars"></div>
+      </section>
+
+      <section class="panel" id="panel-wahlkreise">
+        <div class="wk-layout">
+          <div class="wk-sidebar">
+            <input type="search" class="wk-search" id="wk-search" placeholder="Wahlkreis suchen…">
+            <div class="wk-list" id="wk-list"></div>
+            <div class="wk-count" id="wk-count"></div>
+          </div>
+          <div class="wk-detail-pane" id="wk-detail">
+            <div class="wk-placeholder">Wahlkreis auswählen →</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-gemeinden">
+        <div class="gem-layout">
+          <div class="gem-sidebar">
+            <input type="search" class="wk-search" id="gem-search" placeholder="Gemeinde suchen…">
+            <div class="gem-filters">
+              <select id="gem-wk-filter"><option value="">Alle Wahlkreise</option></select>
+              <select id="gem-winner-filter"><option value="">Alle Sieger</option></select>
+            </div>
+            <div class="gem-list" id="gem-list"></div>
+            <div class="wk-count" id="gem-count"></div>
+          </div>
+          <div class="wk-detail-pane" id="gem-detail">
+            <div class="wk-placeholder">Gemeinde auswählen →</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-vergleich">
+        <div class="panel-toolbar">
+          <span class="toolbar-label">Ansicht</span>
+          <div class="toggle-grp" id="vgl-toggle">
+            <button class="tgl active" data-view="brief">Brief vs. Urne</button>
+            <button class="tgl" data-view="delta">Erststimmen vs. Zweitstimmen</button>
+          </div>
+        </div>
+        <div class="vgl-content" id="vgl-content"></div>
+      </section>
+
+      <section class="panel" id="panel-analyse">
+        <div class="analyse-grid" id="analyse-grid"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Quelle: Statistisches Landesamt Baden-Württemberg</span>
+      <span>Landtagswahl 9. März 2026</span>
+    </footer>
+  </div>
+  <div id="tooltip"></div>
+  <div id="laser"></div>
+
+  <script>
+    const F = {
+      int: n => new Intl.NumberFormat('de-DE').format(n),
+      pct: n => n.toFixed(1).replace('.', ',') + ' %',
+      pct2: n => n.toFixed(2).replace('.', ',') + ' %',
+      pp: n => (n > 0 ? '+' : '') + n.toFixed(2).replace('.', ',') + ' pp',
+      k: n => n >= 1e6 ? (n / 1e6).toFixed(2).replace('.', ',') + ' Mio' : n >= 1e3 ? (n / 1e3).toFixed(0).replace('.', ',') + 'k' : F.int(n)
+    };
+
+    let D = {};
+    let S = { vote: 'second', minPct: 0, selectedWk: null, selectedGem: null, vglView: 'brief' };
+    const PC = {};
+
+    async function load(f) {
+      const r = await fetch('./json/' + f);
+      if (!r.ok) throw new Error(f + ': ' + r.status);
+      return r.json();
+    }
+
+    function norm(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+    function contrastText(hex) {
+      const c = hex.replace('#', '');
+      const r = parseInt(c.substr(0, 2), 16), g = parseInt(c.substr(2, 2), 16), b = parseInt(c.substr(4, 2), 16);
+      return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? '#000' : '#fff';
+    }
+
+    function luminance(hex) {
+      const c = hex.replace('#', '');
+      const r = parseInt(c.substr(0, 2), 16), g = parseInt(c.substr(2, 2), 16), b = parseInt(c.substr(4, 2), 16);
+      return (r * 299 + g * 587 + b * 114) / 1000;
+    }
+
+    function desaturate(hex, amount = 0.25) {
+      const c = hex.replace('#', '');
+      let r = parseInt(c.substr(0, 2), 16), g = parseInt(c.substr(2, 2), 16), b = parseInt(c.substr(4, 2), 16);
+      const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+      r = Math.round(r + (gray - r) * amount);
+      g = Math.round(g + (gray - g) * amount);
+      b = Math.round(b + (gray - b) * amount);
+      return '#' + [r, g, b].map(x => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('');
+    }
+
+    function renderStats() {
+      const o = D.overview;
+      const cards = [
+        { val: F.pct(o.turnoutPct), lbl: 'Wahlbeteiligung', sub: F.int(o.voters) + ' Wähler', accent: true },
+        { val: F.k(o.eligible), lbl: 'Wahlberechtigte', sub: '' },
+        { val: F.pct(o.briefSharePct), lbl: 'Briefwahl-Anteil', sub: F.int(D.modes.Briefwahl?.voters || 0) + ' Wähler' },
+        { val: o.secondWinner.name, lbl: 'Zweitstimmen-Sieger', sub: F.pct(o.secondWinner.share), color: PC[o.secondWinner.name] },
+        { val: o.firstWinner.name, lbl: 'Erststimmen-Sieger', sub: F.pct(o.firstWinner.share), color: PC[o.firstWinner.name] }
+      ];
+      document.getElementById('stats-row').innerHTML = cards.map(c => {
+        const col = c.color ? desaturate(c.color) : '';
+        const valStyle = col ? `color:${luminance(c.color) < 80 ? 'var(--text)' : col}` : '';
+        return `<div class="stat-card">
+          <div class="stat-value" style="${valStyle}">${c.val}</div>
+          <div class="stat-label">${c.lbl}</div>
+          ${c.sub ? `<div class="stat-sub">${c.sub}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function renderErgebnis() {
+      const vote = S.vote;
+      const shareKey = vote + 'Share';
+      const votesKey = vote + 'Votes';
+      let parties = D.parties.filter(p => p[shareKey] > 0);
+      if (S.minPct > 0) parties = parties.filter(p => p[shareKey] >= S.minPct);
+      parties.sort((a, b) => b[shareKey] - a[shareKey]);
+
+      const max = parties.length ? parties[0][shareKey] : 1;
+      const scale = 82 / max;
+      const hurdlePos = 5 * scale;
+
+      const aboveHurdle = parties.filter(p => p[shareKey] >= 5);
+      const belowHurdle = parties.filter(p => p[shareKey] < 5);
+
+      const col = n => desaturate(PC[n] || '#888');
+      const makeRow = p => {
+        const w = (p[shareKey] * scale).toFixed(2);
+        return `<div class="bar-row" data-party="${p.name}">
+          <div class="bar-name">${p.name}</div>
+          <div class="bar-track">
+            <div class="bar-fill" data-target="${w}" style="background:${col(p.name)}"></div>
+          </div>
+          <div class="bar-pct">${F.pct(p[shareKey])}</div>
+          <div class="bar-votes">${F.int(p[votesKey])}</div>
+        </div>`;
+      };
+
+      const isNarrow = window.innerWidth <= 768;
+      const hurdleLeft = isNarrow
+        ? `calc((100% - 120px) * ${5 / max})`
+        : `calc(126px + (100% - 297px) * ${5 / max})`;
+      let html = `<div class="bars-container"><div class="hurdle-line" style="left:${hurdleLeft}" title="5 %-Hürde"></div>`;
+      aboveHurdle.forEach(p => { html += makeRow(p); });
+      if (belowHurdle.length && S.minPct < 5) {
+        html += `<div class="bar-separator"></div>`;
+        belowHurdle.forEach(p => { html += makeRow(p); });
+      }
+      html += `</div>`;
+
+      document.getElementById('ergebnis-bars').innerHTML = html;
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.bar-fill[data-target]').forEach(el => {
+          el.style.width = el.dataset.target + '%';
+        });
+      });
+
+      document.querySelectorAll('.bar-row').forEach(row => {
+        row.addEventListener('mouseenter', e => {
+          const name = row.dataset.party;
+          const p = D.parties.find(x => x.name === name);
+          if (!p) return;
+          showTip(e, `<strong style="color:${PC[name] || '#fff'}">${name}</strong><br>
+            Erststimmen: ${F.pct(p.firstShare)} (${F.int(p.firstVotes)})<br>
+            Zweitstimmen: ${F.pct(p.secondShare)} (${F.int(p.secondVotes)})<br>
+            Delta: <span style="color:${p.deltaShare >= 0 ? 'var(--pos)' : 'var(--neg)'}">${F.pp(p.deltaShare)}</span>`);
+        });
+        row.addEventListener('mousemove', moveTip);
+        row.addEventListener('mouseleave', hideTip);
+      });
+    }
+
+    function renderWkList() {
+      const q = norm(document.getElementById('wk-search')?.value || '');
+      let list = D.wahlkreise.filter(w => !q || norm(w.name).includes(q) || norm(w.shortName).includes(q));
+      list.sort((a, b) => (a.shortName || a.name).localeCompare(b.shortName || b.name, 'de'));
+
+      document.getElementById('wk-list').innerHTML = list.map(w => {
+        const col = desaturate(PC[w.secondWinner] || '#888');
+        const sel = S.selectedWk === w.id ? 'selected' : '';
+        return `<div class="wk-item ${sel}" data-id="${w.id}">
+          <span class="wk-dot" style="background:${col}"></span>
+          <span class="wk-item-name">${w.shortName}</span>
+          <span class="wk-item-pct">${F.pct(w.turnoutPct)}</span>
+          <span class="wk-item-winner" style="background:${col};color:${contrastText(col)}">${w.secondWinner}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('wk-count').textContent = list.length + ' von ' + D.wahlkreise.length + ' Wahlkreisen';
+
+      document.querySelectorAll('#wk-list .wk-item').forEach(el => {
+        el.addEventListener('click', () => {
+          S.selectedWk = el.dataset.id;
+          renderWkList();
+          renderWkDetail();
+        });
+      });
+    }
+
+    function renderWkDetail() {
+      const w = D.wahlkreise.find(x => x.id === S.selectedWk);
+      const el = document.getElementById('wk-detail');
+      if (!w) { el.innerHTML = '<div class="wk-placeholder">Wahlkreis auswählen →</div>'; return; }
+
+      const parties = Object.entries(w.second || {})
+        .map(([name, share]) => ({ name, share, first: w.first?.[name] ?? 0, color: desaturate(PC[name] || '#888') }))
+        .filter(p => p.share > 0.5 || p.first > 0.5)
+        .sort((a, b) => b.share - a.share);
+      const pMax = parties.length ? Math.max(...parties.map(p => Math.max(p.share, p.first))) : 1;
+
+      const fcol = desaturate(PC[w.firstWinner] || '#888');
+      const scol = desaturate(PC[w.secondWinner] || '#888');
+
+      el.innerHTML = `
+        <div class="wk-d-header">
+          <div><div class="wk-d-name">${w.shortName}</div><div class="wk-d-nr">Wahlkreis ${w.wahlkreisnummer}</div></div>
+          <div style="text-align:right"><div class="wk-d-stat-val">${F.pct(w.turnoutPct)}</div><div class="wk-d-stat-lbl">Beteiligung</div></div>
+        </div>
+        <div class="wk-d-stats">
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.int(w.voters)}</div><div class="wk-d-stat-lbl">Wähler</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.int(w.eligible)}</div><div class="wk-d-stat-lbl">Berechtigte</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.pct2(w.invalidFirstPct)}</div><div class="wk-d-stat-lbl">Ungültige Erststimmen</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.pct2(w.invalidSecondPct)}</div><div class="wk-d-stat-lbl">Ungültige Zweitstimmen</div></div>
+        </div>
+        <div class="wk-d-winners">
+          <div class="wk-d-winner wk-d-winner-primary" style="background:${scol};color:${contrastText(scol)}"><small>Zweitstimmen-Sieger</small>${w.secondWinner}<small>${F.pct(w.second?.[w.secondWinner] ?? 0)}</small></div>
+          <div class="wk-d-winner" style="background:${fcol};color:${contrastText(fcol)}"><small>Erststimmen-Sieger</small>${w.firstWinner}<small>${F.pct(w.first?.[w.firstWinner] ?? 0)}</small></div>
+        </div>
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:8px">Parteien</div>
+        <div class="wk-d-parties">
+          <div class="wk-d-bar-header">
+            <div class="wk-d-bar-name"></div>
+            <div class="wk-d-bar-track"></div>
+            <div class="wk-d-bar-pct">2.</div>
+            <div class="wk-d-bar-pct-first">1.</div>
+          </div>
+          ${parties.slice(0, 10).map(p => {
+            const w2 = (p.share / pMax * 80).toFixed(1);
+            return `<div class="wk-d-bar-row">
+              <div class="wk-d-bar-name">${p.name}</div>
+              <div class="wk-d-bar-track"><div class="wk-d-bar-fill" style="width:${w2}%;background:${p.color}"></div></div>
+              <div class="wk-d-bar-pct">${F.pct(p.share)}</div>
+              <div class="wk-d-bar-pct-first">${F.pct(p.first)}</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function initGemFilters() {
+      const wkNums = [...new Set(D.gemeinden.map(g => g.wahlkreisnummer))].sort((a, b) => Number(a) - Number(b));
+      const winners = [...new Set(D.gemeinden.map(g => g.secondWinner))].filter(Boolean).sort();
+      const wkSel = document.getElementById('gem-wk-filter');
+      const winSel = document.getElementById('gem-winner-filter');
+      wkNums.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = 'WK ' + n; wkSel.appendChild(o); });
+      winners.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; winSel.appendChild(o); });
+    }
+
+    function renderGemList() {
+      const q = norm(document.getElementById('gem-search')?.value || '');
+      const wk = document.getElementById('gem-wk-filter')?.value || '';
+      const win = document.getElementById('gem-winner-filter')?.value || '';
+      let list = D.gemeinden;
+      if (q) list = list.filter(g => norm(g.name).includes(q) || norm(g.shortName || '').includes(q));
+      if (wk) list = list.filter(g => g.wahlkreisnummer === wk);
+      if (win) list = list.filter(g => g.secondWinner === win);
+      list = [...list].sort((a, b) => b.turnoutPct - a.turnoutPct).slice(0, 200);
+
+      document.getElementById('gem-list').innerHTML = list.map(g => {
+        const col = desaturate(PC[g.secondWinner] || '#888');
+        const id = g.ags || g.name;
+        const sel = S.selectedGem === id ? 'selected' : '';
+        return `<div class="wk-item ${sel}" data-id="${id}">
+          <span class="wk-dot" style="background:${col}"></span>
+          <span class="wk-item-name">${g.name}</span>
+          <span class="wk-item-pct">${F.pct(g.turnoutPct)}</span>
+          <span class="wk-item-winner" style="background:${col};color:${contrastText(col)}">${g.secondWinner}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('gem-count').textContent = list.length + (list.length >= 200 ? '+' : '') + ' von ' + D.gemeinden.length + ' Gemeinden';
+
+      document.querySelectorAll('#gem-list .wk-item').forEach(el => {
+        el.addEventListener('click', () => {
+          S.selectedGem = el.dataset.id;
+          renderGemList();
+          renderGemDetail();
+        });
+      });
+    }
+
+    function renderGemDetail() {
+      const g = D.gemeinden.find(x => (x.ags || x.name) === S.selectedGem);
+      const el = document.getElementById('gem-detail');
+      if (!g) { el.innerHTML = '<div class="wk-placeholder">Gemeinde auswählen →</div>'; return; }
+
+      const parties = Object.entries(g.second || {})
+        .map(([name, share]) => ({ name, share, first: g.first?.[name] ?? 0, color: desaturate(PC[name] || '#888') }))
+        .filter(p => p.share > 0.5 || p.first > 0.5)
+        .sort((a, b) => b.share - a.share);
+      const pMax = parties.length ? Math.max(...parties.map(p => Math.max(p.share, p.first))) : 1;
+      const fcol = desaturate(PC[g.firstWinner] || '#888');
+      const scol = desaturate(PC[g.secondWinner] || '#888');
+
+      el.innerHTML = `
+        <div class="wk-d-header">
+          <div><div class="wk-d-name">${g.name}</div><div class="wk-d-nr">Wahlkreis ${g.wahlkreisnummer}</div></div>
+          <div style="text-align:right"><div class="wk-d-stat-val">${F.pct(g.turnoutPct)}</div><div class="wk-d-stat-lbl">Beteiligung</div></div>
+        </div>
+        <div class="wk-d-stats">
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.int(g.voters)}</div><div class="wk-d-stat-lbl">Wähler</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.int(g.eligible)}</div><div class="wk-d-stat-lbl">Berechtigte</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.pct2(g.invalidFirstPct)}</div><div class="wk-d-stat-lbl">Ungültige Erststimmen</div></div>
+          <div class="wk-d-stat"><div class="wk-d-stat-val" style="font-size:1rem">${F.pct2(g.invalidSecondPct)}</div><div class="wk-d-stat-lbl">Ungültige Zweitstimmen</div></div>
+        </div>
+        <div class="wk-d-winners">
+          <div class="wk-d-winner wk-d-winner-primary" style="background:${scol};color:${contrastText(scol)}"><small>Zweitstimmen-Sieger</small>${g.secondWinner}<small>${F.pct(g.second?.[g.secondWinner] ?? 0)}</small></div>
+          <div class="wk-d-winner" style="background:${fcol};color:${contrastText(fcol)}"><small>Erststimmen-Sieger</small>${g.firstWinner}<small>${F.pct(g.first?.[g.firstWinner] ?? 0)}</small></div>
+        </div>
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:8px">Parteien</div>
+        <div class="wk-d-parties">
+          <div class="wk-d-bar-header">
+            <div class="wk-d-bar-name"></div>
+            <div class="wk-d-bar-track"></div>
+            <div class="wk-d-bar-pct">2.</div>
+            <div class="wk-d-bar-pct-first">1.</div>
+          </div>
+          ${parties.slice(0, 10).map(p => {
+            const w2 = (p.share / pMax * 80).toFixed(1);
+            return `<div class="wk-d-bar-row">
+              <div class="wk-d-bar-name">${p.name}</div>
+              <div class="wk-d-bar-track"><div class="wk-d-bar-fill" style="width:${w2}%;background:${p.color}"></div></div>
+              <div class="wk-d-bar-pct">${F.pct(p.share)}</div>
+              <div class="wk-d-bar-pct-first">${F.pct(p.first)}</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function renderVergleich() {
+      if (S.vglView === 'brief') renderBriefUrne();
+      else renderErstZweit();
+    }
+
+    function renderBriefUrne() {
+      const b = D.modes.Briefwahl;
+      const u = D.modes.Urnenwahl;
+      if (!b || !u) return;
+
+      const allNames = [...new Set([...Object.keys(b.second || {}), ...Object.keys(u.second || {})])]
+        .filter(n => (b.second?.[n] ?? 0) > 1 || (u.second?.[n] ?? 0) > 1)
+        .sort((a, c) => Math.max(b.second?.[c] ?? 0, u.second?.[c] ?? 0) - Math.max(b.second?.[a] ?? 0, u.second?.[a] ?? 0));
+      const maxVal = Math.max(...allNames.map(n => Math.max(b.second?.[n] ?? 0, u.second?.[n] ?? 0)));
+      const sc = 75 / maxVal;
+
+      document.getElementById('vgl-content').innerHTML = `
+        <div class="vgl-header">
+          <div class="vgl-card">
+            <div class="vgl-card-icon">✉️</div>
+            <div class="vgl-card-val">${F.pct(b.voterSharePct)}</div>
+            <div class="vgl-card-lbl">Briefwahl</div>
+            <div class="vgl-card-sub">${F.int(b.voters)} Wähler · ${F.int(b.districtCount)} Bezirke</div>
+          </div>
+          <div class="vgl-card">
+            <div class="vgl-card-icon">🗳️</div>
+            <div class="vgl-card-val">${F.pct(u.voterSharePct)}</div>
+            <div class="vgl-card-lbl">Urnenwahl</div>
+            <div class="vgl-card-sub">${F.int(u.voters)} Wähler · ${F.int(u.districtCount)} Bezirke</div>
+          </div>
+          <div class="vgl-card">
+            <div class="vgl-card-val" style="font-size:1rem">${F.pct2(b.invalidFirstPct)} / ${F.pct2(u.invalidFirstPct)}</div>
+            <div class="vgl-card-lbl">Ungültige Erststimmen (B/U)</div>
+            <div class="vgl-card-val" style="font-size:1rem;margin-top:4px">${F.pct2(b.invalidSecondPct)} / ${F.pct2(u.invalidSecondPct)}</div>
+            <div class="vgl-card-lbl">Ungültige Zweitstimmen (B/U)</div>
+          </div>
+        </div>
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:8px">Zweitstimmen-Anteile: Brief (oben) vs. Urne (unten)</div>
+        <div class="vgl-bars">
+          ${allNames.map(n => {
+            const bv = b.second?.[n] ?? 0;
+            const uv = u.second?.[n] ?? 0;
+            const col = desaturate(PC[n] || '#888');
+            const diff = bv - uv;
+            const diffCol = diff > 0 ? 'var(--pos)' : diff < 0 ? 'var(--neg)' : 'var(--text2)';
+            return `<div class="vgl-bar-group">
+              <div class="vgl-bar-row">
+                <div class="vgl-bar-label">${n}</div>
+                <div class="vgl-bar-type">Brief</div>
+                <div class="vgl-bar-track"><div class="vgl-bar-fill" style="width:${(bv * sc).toFixed(1)}%;background:${col};opacity:0.9"></div></div>
+                <div class="vgl-bar-pct">${F.pct(bv)}</div>
+              </div>
+              <div class="vgl-bar-row">
+                <div class="vgl-bar-label"></div>
+                <div class="vgl-bar-type">Urne</div>
+                <div class="vgl-bar-track"><div class="vgl-bar-fill" style="width:${(uv * sc).toFixed(1)}%;background:${col};opacity:0.55"></div></div>
+                <div class="vgl-bar-pct">${F.pct(uv)}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function renderErstZweit() {
+      let parties = D.parties.filter(p => Math.max(p.firstShare, p.secondShare) > 1);
+      parties.sort((a, b) => Math.abs(b.deltaShare) - Math.abs(a.deltaShare));
+      const maxDelta = Math.max(...parties.map(p => Math.abs(p.deltaShare)));
+      const sc = maxDelta > 0 ? 40 / maxDelta : 1;
+
+      document.getElementById('vgl-content').innerHTML = `
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:12px">Delta: Zweitstimmen − Erststimmen (Prozentpunkte)</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${parties.map(p => {
+            const d = p.deltaShare;
+            const w = (Math.abs(d) * sc).toFixed(1);
+            const col = d >= 0 ? 'var(--pos)' : 'var(--neg)';
+            const isPos = d >= 0;
+            const leftPct = isPos ? 50 : (50 - parseFloat(w));
+            return `<div class="vgl-delta-row">
+              <div class="vgl-delta-name" style="color:${luminance(PC[p.name] || '#888') < 80 ? '#fff' : desaturate(PC[p.name] || '#888')}">${p.name}</div>
+              <div class="vgl-delta-track">
+                <div class="vgl-delta-center"></div>
+                <div class="vgl-delta-bar" style="left:${isPos ? 50 : 50 - parseFloat(w)}%;width:${w}%;background:${col}"></div>
+              </div>
+              <div class="vgl-delta-val ${d >= 0 ? 'plus' : 'minus'}">${F.pp(d)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;justify-content:center;gap:24px;margin-top:14px;font-size:0.65rem;color:var(--text3)">
+          <span>← mehr Erststimmen</span><span>mehr Zweitstimmen →</span>
+        </div>`;
+    }
+
+    function renderAnalyse() {
+      const wk = D.wahlkreise;
+      const gem = D.gemeinden;
+      const byTurnout = [...wk].sort((a, b) => b.turnoutPct - a.turnoutPct);
+      const gemByTurnout = [...gem].sort((a, b) => b.turnoutPct - a.turnoutPct);
+
+      const topParties = D.parties.filter(p => p.secondShare >= 5).slice(0, 3);
+
+      const rankCard = (title, items, valFn) => `
+        <div class="a-card">
+          <div class="a-card-title">${title}</div>
+          ${items.map((it, i) => `<div class="a-rank">
+            <span class="a-rank-pos">${i + 1}.</span>
+            <span class="a-rank-name">${it.shortName || it.name}</span>
+            <span class="a-rank-val">${valFn(it)}</span>
+          </div>`).join('')}
+        </div>`;
+
+      const partyCards = topParties.map(p => {
+        const sorted = [...wk].sort((a, b) => (b.second?.[p.name] ?? 0) - (a.second?.[p.name] ?? 0));
+        return rankCard('Stärkste ' + p.name, sorted.slice(0, 5), w => F.pct(w.second?.[p.name] ?? 0));
+      }).join('');
+
+      const o = D.overview;
+      document.getElementById('analyse-grid').innerHTML = `
+        ${rankCard('Höchste Beteiligung (WK)', byTurnout.slice(0, 5), w => F.pct(w.turnoutPct))}
+        ${rankCard('Niedrigste Beteiligung (WK)', byTurnout.slice(-5).reverse(), w => F.pct(w.turnoutPct))}
+        ${rankCard('Höchste Beteiligung (Gem.)', gemByTurnout.slice(0, 5), g => F.pct(g.turnoutPct))}
+        ${partyCards}
+        <div class="a-card">
+          <div class="a-card-title">Stimmen-Statistik</div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Gültige Erststimmen</span><span class="a-stat-val">${F.int(o.validFirst)}</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Gültige Zweitstimmen</span><span class="a-stat-val">${F.int(o.validSecond)}</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Ungültige Erststimmen</span><span class="a-stat-val">${F.int(o.invalidFirst)} (${F.pct2(o.invalidFirstPct)})</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Ungültige Zweitstimmen</span><span class="a-stat-val">${F.int(o.invalidSecond)} (${F.pct2(o.invalidSecondPct)})</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Gemeldete Bezirke</span><span class="a-stat-val">${F.int(o.reported)} / ${F.int(o.totalDistricts)}</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Briefwahl-Bezirke</span><span class="a-stat-val">${F.int(D.modes.Briefwahl?.districtCount || 0)}</span></div>
+          <div class="a-stat-row"><span class="a-stat-lbl">Urnen-Bezirke</span><span class="a-stat-val">${F.int(D.modes.Urnenwahl?.districtCount || 0)}</span></div>
+        </div>
+        <div class="a-card">
+          <div class="a-card-title">Niedrigste Beteiligung (Gem.)</div>
+          ${gemByTurnout.slice(-5).reverse().map((g, i) => `<div class="a-rank">
+            <span class="a-rank-pos">${i + 1}.</span>
+            <span class="a-rank-name">${g.name}</span>
+            <span class="a-rank-val">${F.pct(g.turnoutPct)}</span>
+          </div>`).join('')}
+        </div>`;
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.panel === name));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+
+      if (name === 'wahlkreise' && !document.getElementById('wk-list').children.length) renderWkList();
+      if (name === 'gemeinden' && !document.getElementById('gem-list').children.length) { initGemFilters(); renderGemList(); }
+      if (name === 'vergleich') renderVergleich();
+      if (name === 'analyse') renderAnalyse();
+    }
+
+    const tip = document.getElementById('tooltip');
+    function showTip(e, html) { tip.innerHTML = html; tip.classList.add('show'); moveTip(e); }
+    function moveTip(e) {
+      const x = e.clientX + 14, y = e.clientY + 14;
+      const r = tip.getBoundingClientRect();
+      tip.style.left = (x + r.width > window.innerWidth ? e.clientX - r.width - 10 : x) + 'px';
+      tip.style.top = (y + r.height > window.innerHeight ? e.clientY - r.height - 10 : y) + 'px';
+    }
+    function hideTip() { tip.classList.remove('show'); }
+
+    function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+    async function init() {
+      try {
+        const [overview, parties, modes, wahlkreise, gemeinden] = await Promise.all([
+          load('overview.json'), load('parties.json'), load('modes.json'),
+          load('wahlkreise.json'), load('gemeinden.json')
+        ]);
+        D = { overview, parties, modes, wahlkreise, gemeinden };
+        parties.forEach(p => { PC[p.name] = p.color; });
+
+        renderStats();
+        renderErgebnis();
+
+        document.querySelectorAll('.tab').forEach(t => {
+          t.addEventListener('click', () => switchTab(t.dataset.panel));
+        });
+
+        document.querySelectorAll('#vote-toggle .tgl').forEach(b => {
+          b.addEventListener('click', () => {
+            document.querySelectorAll('#vote-toggle .tgl').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            S.vote = b.dataset.v;
+            renderErgebnis();
+          });
+        });
+        document.querySelectorAll('#party-filter .tgl').forEach(b => {
+          b.addEventListener('click', () => {
+            document.querySelectorAll('#party-filter .tgl').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            S.minPct = Number(b.dataset.min);
+            renderErgebnis();
+          });
+        });
+
+        document.getElementById('wk-search').addEventListener('input', debounce(renderWkList, 120));
+        document.getElementById('gem-search').addEventListener('input', debounce(renderGemList, 120));
+        document.getElementById('gem-wk-filter').addEventListener('change', renderGemList);
+        document.getElementById('gem-winner-filter').addEventListener('change', renderGemList);
+
+        document.querySelectorAll('#vgl-toggle .tgl').forEach(b => {
+          b.addEventListener('click', () => {
+            document.querySelectorAll('#vgl-toggle .tgl').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            S.vglView = b.dataset.view;
+            renderVergleich();
+          });
+        });
+
+        const laser = document.getElementById('laser');
+        const laserBtn = document.getElementById('laser-btn');
+        let lastX = window.innerWidth / 2, lastY = window.innerHeight / 2;
+        function moveLaser(x, y) {
+          lastX = x; lastY = y;
+          if (!laser.classList.contains('on')) return;
+          laser.style.left = x + 'px';
+          laser.style.top = y + 'px';
+        }
+        laserBtn.addEventListener('click', () => {
+          laser.classList.toggle('on');
+          laserBtn.classList.toggle('active', laser.classList.contains('on'));
+          if (laser.classList.contains('on')) {
+            laser.style.left = lastX + 'px';
+            laser.style.top = lastY + 'px';
+          }
+        });
+        document.addEventListener('mousemove', e => moveLaser(e.clientX, e.clientY));
+        document.addEventListener('touchmove', e => {
+          if (e.touches.length) moveLaser(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+
+        document.getElementById('loader').classList.add('hide');
+        document.getElementById('app').style.opacity = '1';
+        setTimeout(() => document.getElementById('loader').remove(), 500);
+
+      } catch (e) {
+        document.getElementById('loader').innerHTML =
+          `<div style="color:var(--neg);text-align:center;padding:24px">
+            <div style="font-size:1.2rem;font-weight:600;margin-bottom:8px">Fehler beim Laden</div>
+            <div style="font-size:0.85rem;color:var(--text2)">${e.message}</div>
+            <div style="font-size:0.75rem;color:var(--text3);margin-top:12px">Prüfe die Netzwerkverbindung oder ob die Seite korrekt gehostet wird.</div>
+          </div>`;
+      }
+    }
+    init();
+  </script>
+</body>
+</html>

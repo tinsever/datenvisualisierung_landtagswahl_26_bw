@@ -2,6 +2,8 @@
 
 Es gibt keine Gewähr für Richtigkeit.
 
+Der Inhalt ist auch im Browser aufrufbar. Dafür [hier](https://tinsever.github.io/datenvisualisierung_landtagswahl_26_bw/) klicken.
+
 > [!NOTE]
 > Datengrundlage: © Statistisches Landesamt Baden-Württemberg, Stuttgart, 2026. Eigene grafische Aufbereitung: Tin Sever, lizenziert unter CC BY-SA 4.0. Änderungen und Visualisierung durch Tin Sever.
 
