@@ -491,6 +491,103 @@
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
+    .galerie-toolbar {
+      display: flex;
+      gap: var(--space);
+      align-items: center;
+      margin-bottom: var(--space);
+      flex-wrap: wrap;
+    }
+    .galerie-toolbar select {
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: var(--font);
+      font-size: 0.72rem;
+      color: var(--text);
+      outline: none;
+    }
+    .galerie-toolbar select:focus { border-color: var(--accent); }
+    .galerie-count {
+      font-size: 0.65rem;
+      color: var(--text3);
+      margin-left: auto;
+    }
+    .galerie-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      overflow-y: auto;
+      align-content: start;
+    }
+    .galerie-card {
+      background: var(--panel);
+      border: 1px solid var(--bdr);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .galerie-card:hover {
+      border-color: rgba(90,159,212,0.4);
+      transform: translateY(-2px);
+    }
+    .galerie-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #f6f2ea;
+    }
+    .galerie-card-label {
+      padding: 6px 10px;
+      font-size: 0.68rem;
+      color: var(--text2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .galerie-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text3);
+      font-size: 0.85rem;
+    }
+
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0,0,0,0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      padding: 24px;
+    }
+    #lightbox.show { display: flex; }
+    #lightbox img {
+      max-width: 95vw;
+      max-height: 92vh;
+      border-radius: 6px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: #f6f2ea;
+    }
+    #lightbox-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.72rem;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
     .loading-screen {
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -615,6 +712,11 @@
 
       .analyse-grid { grid-template-columns: 1fr; gap: 8px; }
 
+      .galerie-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+      .galerie-toolbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .galerie-toolbar select, .galerie-toolbar .wk-search { width: 100%; max-width: 100% !important; }
+      .galerie-count { margin-left: 0; }
+
       footer {
         flex-direction: column;
         align-items: flex-start;
@@ -659,6 +761,7 @@
       <button class="tab" data-panel="gemeinden">Gemeinden</button>
       <button class="tab" data-panel="vergleich">Vergleich</button>
       <button class="tab" data-panel="analyse">Analyse</button>
+      <button class="tab" data-panel="galerie">Galerie</button>
     </nav>
 
     <main>
@@ -723,6 +826,16 @@
       <section class="panel" id="panel-analyse">
         <div class="analyse-grid" id="analyse-grid"></div>
       </section>
+
+      <section class="panel" id="panel-galerie">
+        <div class="galerie-toolbar">
+          <span class="toolbar-label">Kategorie</span>
+          <select id="galerie-cat"></select>
+          <input type="search" class="wk-search" id="galerie-search" placeholder="Datei suchen…" style="max-width:240px">
+          <span class="galerie-count" id="galerie-count"></span>
+        </div>
+        <div class="galerie-grid" id="galerie-grid"></div>
+      </section>
     </main>
 
     <footer>
@@ -732,6 +845,7 @@
   </div>
   <div id="tooltip"></div>
   <div id="laser"></div>
+  <div id="lightbox"><img id="lightbox-img" src="" alt=""><div id="lightbox-caption"></div></div>
 
   <script>
     const F = {
@@ -1164,6 +1278,112 @@
         </div>`;
     }
 
+    let galerieData = null;
+    let galerieState = { cat: '', query: '' };
+
+    const GALERIE_CATS = {
+      'overview': 'Überblick',
+      'delta': 'Erst-/Zweitstimmen-Delta',
+      'heatmaps': 'Heatmaps',
+      'modes': 'Brief vs. Urne',
+      'differences': 'Differenzen',
+      'gaps': 'Stimmungslücken',
+      'profiles/wahlkreis': 'Profile Wahlkreise',
+      'profiles/gemeinde': 'Profile Gemeinden',
+      'explorer/wahlkreis': 'Explorer Wahlkreise',
+      'explorer/gemeinde': 'Explorer Gemeinden',
+    };
+
+    function galerieCategory(path) {
+      for (const prefix of Object.keys(GALERIE_CATS).sort((a, b) => b.length - a.length)) {
+        if (path.startsWith(prefix)) return prefix;
+      }
+      return 'other';
+    }
+
+    function galerieLabel(path) {
+      const parts = path.split('/');
+      return parts[parts.length - 1].replace(/\.png$/i, '').replace(/[_-]/g, ' ');
+    }
+
+    async function initGalerie() {
+      if (galerieData) return;
+      try {
+        const r = await fetch('./manifest.json');
+        if (!r.ok) throw new Error('manifest.json: ' + r.status);
+        const manifest = await r.json();
+        galerieData = manifest.files || [];
+      } catch {
+        galerieData = [];
+      }
+
+      const cats = [...new Set(galerieData.map(galerieCategory))];
+      const sel = document.getElementById('galerie-cat');
+      sel.innerHTML = '<option value="">Alle Kategorien (' + galerieData.length + ')</option>';
+      cats.forEach(c => {
+        const count = galerieData.filter(f => galerieCategory(f) === c).length;
+        const o = document.createElement('option');
+        o.value = c;
+        o.textContent = (GALERIE_CATS[c] || c) + ' (' + count + ')';
+        sel.appendChild(o);
+      });
+
+      sel.addEventListener('change', () => { galerieState.cat = sel.value; renderGalerie(); });
+      document.getElementById('galerie-search').addEventListener('input', debounce(() => {
+        galerieState.query = norm(document.getElementById('galerie-search').value);
+        renderGalerie();
+      }, 150));
+
+      renderGalerie();
+    }
+
+    function renderGalerie() {
+      if (!galerieData) return;
+      let files = galerieData;
+      if (galerieState.cat) files = files.filter(f => galerieCategory(f) === galerieState.cat);
+      if (galerieState.query) files = files.filter(f => norm(f).includes(galerieState.query));
+
+      const grid = document.getElementById('galerie-grid');
+      const MAX = 120;
+      const shown = files.slice(0, MAX);
+
+      if (!shown.length) {
+        grid.innerHTML = '<div class="galerie-empty">Keine Bilder gefunden' + (galerieData.length ? ' – versuche einen anderen Filter' : ' – manifest.json nicht geladen oder keine PNG-Dateien vorhanden') + '</div>';
+        document.getElementById('galerie-count').textContent = '0 Bilder';
+        return;
+      }
+
+      grid.innerHTML = shown.map(f => `<div class="galerie-card" data-file="${f}">
+        <img src="./${f}" alt="${galerieLabel(f)}" loading="lazy" onerror="this.parentElement.style.display='none'">
+        <div class="galerie-card-label" title="${f}">${galerieLabel(f)}</div>
+      </div>`).join('');
+
+      const suffix = files.length > MAX ? ' (zeige ' + MAX + ' von ' + files.length + ')' : '';
+      document.getElementById('galerie-count').textContent = files.length + ' Bilder' + suffix;
+
+      grid.querySelectorAll('.galerie-card').forEach(card => {
+        card.addEventListener('click', () => openLightbox('./' + card.dataset.file, galerieLabel(card.dataset.file)));
+      });
+    }
+
+    function openLightbox(src, caption) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-caption').textContent = caption;
+      lb.classList.add('show');
+    }
+
+    document.getElementById('lightbox').addEventListener('click', () => {
+      document.getElementById('lightbox').classList.remove('show');
+      document.getElementById('lightbox-img').src = '';
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('lightbox').classList.remove('show');
+        document.getElementById('lightbox-img').src = '';
+      }
+    });
+
     function switchTab(name) {
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.panel === name));
       document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
@@ -1172,6 +1392,7 @@
       if (name === 'gemeinden' && !document.getElementById('gem-list').children.length) { initGemFilters(); renderGemList(); }
       if (name === 'vergleich') renderVergleich();
       if (name === 'analyse') renderAnalyse();
+      if (name === 'galerie') initGalerie();
     }
 
     const tip = document.getElementById('tooltip');
